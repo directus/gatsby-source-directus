@@ -104,7 +104,7 @@ exports.createResolvers = async ({ cache, createResolvers }, pluginOptions) => {
 	const fileResolver = {
 		imageFile: {
 			type: `File`,
-			async resolve (source) {
+			async resolve(source) {
 				// Lookup the cached image node and return it
 				const cachedFile = await cache.get(source.id);
 				return cachedFile;
@@ -131,7 +131,7 @@ class Plugin {
 		this.authPromise = null;
 	}
 
-	async setOptions (options) {
+	async setOptions(options) {
 		const { url, dev, auth } = options;
 
 		if (isEmpty(url)) error('"url" must be defined');
@@ -184,7 +184,7 @@ class Plugin {
 		return this.authPromise;
 	}
 
-	getOptions () {
+	getOptions() {
 		const internalOptions = ['url', 'dev', 'auth', 'type'];
 		const gatsbyPluginOptions = Object.fromEntries(
 			Object.entries(this.options).flatMap(([key, value]) => (internalOptions.includes(key) ? [] : [[key, value]]))
@@ -200,7 +200,7 @@ class Plugin {
 		};
 	}
 
-	getOptionsSystem () {
+	getOptionsSystem() {
 		const options = this.getOptions();
 
 		return {
@@ -214,13 +214,13 @@ class Plugin {
 	/**
 	 * Method to retrieve all of the images in directus.files
 	 */
-	async getAllImages () {
+	async getAllImages() {
 		const files = await this.directus.files.readByQuery({ limit: -1 });
 		const imageFiles = files.data.filter(file => file.type.indexOf('image') > -1);
 		return imageFiles;
 	}
 
-	async headers () {
+	async headers() {
 		let headers = {};
 		if (typeof this.options?.headers === 'object') {
 			Object.assign(headers, this.options.headers || {});
@@ -239,27 +239,27 @@ class Plugin {
 }
 
 class Log {
-	static log (level, message) {
+	static log(level, message) {
 		let color = level === 'error' ? 'red' : level === 'warning' ? 'yellow' : 'white';
 
 		// eslint-disable-next-line no-console
 		console.log(chalk.cyan('gatsby-source-directus'), ':', chalk[color](message));
 	}
-	static error (message) {
+	static error(message) {
 		Log.log('error', message);
 	}
-	static warning (message) {
+	static warning(message) {
 		Log.log('error', message);
 	}
 }
 
-function isEmpty (value) {
+function isEmpty(value) {
 	if (value?.constructor === String) return value.length === 0;
 
 	return true;
 }
 
-function error (message) {
+function error(message) {
 	Log.error(message);
 
 	const error = new Error(`gatsby-source-directus: ${message}`);
@@ -268,7 +268,7 @@ function error (message) {
 	throw error;
 }
 
-function warning (message) {
+function warning(message) {
 	Log.warning(message);
 }
 
