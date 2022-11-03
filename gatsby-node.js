@@ -152,7 +152,7 @@ class Plugin {
 			const baseUrl = new URL(url);
 			let basePath = baseUrl.pathname;
 
-			basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;		
+			basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;		
 			
 			baseUrl.pathname = basePath;
 			this.url = baseUrl.toString();
