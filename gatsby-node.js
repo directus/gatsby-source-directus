@@ -150,14 +150,15 @@ class Plugin {
 
 		try {
 			const baseUrl = new URL(url);
-
-			baseUrl.pathname = '/';
+			const basePath = baseUrl.pathname;
+			
+			baseUrl.pathname = basePath;
 			this.url = baseUrl.toString();
 
-			baseUrl.pathname = '/graphql';
+			baseUrl.pathname = basePath + '/graphql';
 			this.urlGraphql = baseUrl.toString();
 
-			baseUrl.pathname = '/graphql/system';
+			baseUrl.pathname = basePath + '/graphql/system';
 			this.urlGraphqlSystem = baseUrl.toString();
 		} catch (err) {
 			error('"url" should be a valid URL');
