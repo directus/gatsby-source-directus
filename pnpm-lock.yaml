@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@directus/sdk': 10.2.0
+  '@directus/sdk': 9.14.1
   eslint-config-prettier: ^8.5.0
   gatsby-source-filesystem: 4.13.0
   gatsby-source-graphql: 4.13.0
@@ -58,12 +58,48 @@ packages:
       regenerator-runtime: 0.13.10
     dev: false
 
-  /@directus/sdk/10.2.0:
-    resolution: {integrity: sha512-q+b26PWd0PlFpy/ZvXaixAHAf1Y99aRyHZ1PYGIBeYkEQ04jfyNVs9Eh3sMWU8FLGzOqM6JUc2fYfQ69lhRg7g==}
+  /@directus/sdk/9.14.1:
+    resolution: {integrity: sha512-WKZ1KXtSVSnpsJQL4fto9yXQ69pAvCEBFYIR+Ew61aJ1612TzVTqNfgmTNM21LRrZ5S7hqPMCXCBkQ34tJAqRw==}
     dependencies:
-      axios: 0.27.2
+      '@directus/shared': 9.14.1_axios@0.24.0
+      axios: 0.24.0
     transitivePeerDependencies:
+      - '@types/express'
+      - '@types/geojson'
+      - '@types/pino'
       - debug
+      - express
+      - geojson
+      - knex
+      - knex-schema-inspector
+      - pino
+      - vue
+      - vue-i18n
+      - vue-router
+    dev: false
+
+  /@directus/shared/9.14.1_axios@0.24.0:
+    resolution: {integrity: sha512-m37bcJjmeFda3S6zxi7mMLT54a9QzgjGBPSzLlV6djIlFBMCX9bkkHi8UBZPHUmehASFDLDnCcFJjyyXjYQ4Mw==}
+    peerDependencies:
+      '@types/express': '*'
+      '@types/geojson': '*'
+      '@types/pino': '*'
+      axios: '*'
+      express: '*'
+      geojson: '*'
+      knex: '*'
+      knex-schema-inspector: '*'
+      pino: '*'
+      vue: '3'
+      vue-i18n: '9'
+      vue-router: '4'
+    dependencies:
+      axios: 0.24.0
+      date-fns: 2.24.0
+      fs-extra: 10.0.0
+      joi: 17.4.2
+      lodash: 4.17.21
+      micromustache: 8.0.3
     dev: false
 
   /@graphql-tools/batch-execute/8.5.1:
@@ -224,6 +260,16 @@ packages:
     resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dev: false
+
+  /@hapi/hoek/9.3.0:
+    resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
+    dev: false
+
+  /@hapi/topo/5.1.0:
+    resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+    dependencies:
+      '@hapi/hoek': 9.3.0
     dev: false
 
   /@lmdb/lmdb-darwin-arm64/2.5.3:
@@ -441,11 +487,10 @@ packages:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
     dev: false
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/0.24.0:
+    resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -659,6 +704,15 @@ packages:
       mime-types: 2.1.35
     dev: false
 
+  /fs-extra/10.0.0:
+    resolution: {integrity: sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: false
+
   /fs-extra/10.1.0:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
@@ -718,7 +772,7 @@ packages:
       pretty-bytes: 5.6.0
       progress: 2.0.3
       valid-url: 1.0.9
-      xstate: 4.32.1
+      xstate: 4.34.0
     dev: false
 
   /gatsby-source-graphql/4.13.0:
@@ -908,6 +962,16 @@ packages:
     resolution: {integrity: sha512-cyA56iCMHAh5CdzjJIa4aohJyeO1YbwLi3Jc35MmRU6poroFjIGZzUzupGiRPOjgHg9TLu43xbpwXk523fMxKA==}
     dev: false
 
+  /joi/17.4.2:
+    resolution: {integrity: sha512-Lm56PP+n0+Z2A2rfRvsfWVDXGEWjXxatPopkQ8qQ5mxCEhwHG+Ettgg5o98FFaxilOxozoa14cFhrE/hOzh/Nw==}
+    dependencies:
+      '@hapi/hoek': 9.3.0
+      '@hapi/topo': 5.1.0
+      '@sideway/address': 4.1.4
+      '@sideway/formula': 3.0.0
+      '@sideway/pinpoint': 2.0.0
+    dev: false
+
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
     dev: false
@@ -962,6 +1026,10 @@ packages:
     resolution: {integrity: sha512-NZQIJJL5Rb9lMJ0Yl1JoVr9GSdo4HTPsUEWsSFzB8dE8DSoiLCVavWZPi7Rnlv/o73u6I24S/XYc/NmG4l8EKA==}
     dev: false
 
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: false
+
   /loose-envify/1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -990,6 +1058,11 @@ packages:
     resolution: {integrity: sha512-xbEFXCYVWrSx/gEKS1VPlg84h/4L20znVIulKw6kMfmBUAZNAnF00eczz9ICMl+/hjQGo5KSXRxbL/47X3rmMw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
+    dev: false
+
+  /micromustache/8.0.3:
+    resolution: {integrity: sha512-SXjrEPuYNtWq0reR9LR2nHdzdQx/3re9HPcDGjm00L7hi2RsH5KMRBhYEBvPdyQC51RW/2TznjwX/sQLPPyHNw==}
+    engines: {node: '>=8'}
     dev: false
 
   /mime-db/1.52.0:
@@ -1402,8 +1475,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /xstate/4.32.1:
-    resolution: {integrity: sha512-QYUd+3GkXZ8i6qdixnOn28bL3EvA++LONYL/EMWwKlFSh/hiLndJ8YTnz77FDs+JUXcwU7NZJg7qoezoRHc4GQ==}
+  /xstate/4.34.0:
+    resolution: {integrity: sha512-MFnYz7cJrWuXSZ8IPkcCyLB1a2T3C71kzMeShXKmNaEjBR/JQebKZPHTtxHKZpymESaWO31rA3IQ30TC6LW+sw==}
     dev: false
 
   /zen-observable-ts/1.2.5:
