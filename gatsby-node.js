@@ -148,7 +148,7 @@ class Plugin {
 		this.url = '';
 		this.refreshInterval = 0;
 		this.authPromise = null;
-		this.concurrency = 0;
+		this.concurrency = 10;
 	}
 
 	async setOptions(options) {

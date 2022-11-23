@@ -129,6 +129,8 @@ query {
 - `graphql` [*Optional*] - defines extra options to be passed into `gatsby-source-graphql`. Useful for advanced use
   cases.
 
+- `concurrency` [*Optional, defaults to `10`*] - tells how much images tries to download concurrently
+
 ## How to query
 
 The default way to query data is to fetch items from `directus` field.
