@@ -255,6 +255,7 @@ class Plugin {
 
 			const files = await this.directus.files
 				.readByQuery({
+					filter: { type: { _contains: 'image' } },
 					fields: ['id', 'type', 'filename_download'],
 					sort: ['id'],
 					limit: this.concurrency,
