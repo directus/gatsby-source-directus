@@ -1,3 +1,5 @@
+// @ts-check
+
 const ms = require('ms');
 const chalk = require('chalk');
 const { Directus } = require('@directus/sdk');
@@ -29,6 +31,7 @@ exports.pluginOptionsSchema = ({ Joi }) => {
 			refresh: [Joi.number(), Joi.string()],
 		}),
 		graphql: Joi.object(),
+		concurrency: Joi.number().default(10),
 	});
 };
 
@@ -37,7 +40,14 @@ exports.pluginOptionsSchema = ({ Joi }) => {
  */
 
 exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
-	const { actions: { createNode }, createNodeId, store, cache, reporter } = gatsbyOptions
+	const {
+		actions: { createNode, touchNode },
+		createNodeId,
+		store,
+		cache,
+		reporter,
+		getNode,
+	} = gatsbyOptions;
 	const { headers } = await plugin.getOptions();
 	const { Authorization } = await headers();
 
@@ -62,30 +72,39 @@ exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
 	// Load images here rather than on file resolution.
 	// Create a node for each image and store it in the cache
 	// so it can bre retrieved on file resolution.
-	const remoteImages = await plugin.getAllImages();
-	remoteImages.forEach(async (image) => {
-		const cachedImage = await cache.get(image.id)
-		if (cachedImage !== undefined) {
-			return
-		}
-		const nameParts = image.filename_download.split('.');
-		const ext = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
-		const name = nameParts.join('.');
-		const imageUrl = `${plugin.url}assets/${image.id}`;
-		const img = await createRemoteFileNode({
-			url: imageUrl,
-			parentNodeId: image.id,
-			store,
-			cache,
-			createNode,
-			createNodeId,
-			httpHeaders: { Authorization },
-			reporter,
-			ext,
-			name,
-		});
-		await cache.set(image.id, img);
-	})
+	for await (const images of plugin.iterateImages()) {
+		if (!images?.length) break;
+
+		await Promise.all(
+			images.map(async (image) => {
+				const cached = await cache.get(image.id);
+				const node = cached && getNode(cached.nodeId);
+
+				if (node) {
+					touchNode(node);
+					return;
+				}
+
+				const nameParts = image.filename_download.split('.');
+				const ext = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
+				const name = nameParts.join('.');
+				const imageUrl = `${plugin.url}assets/${image.id}`;
+				const img = await createRemoteFileNode({
+					url: imageUrl,
+					parentNodeId: image.id,
+					store,
+					cache,
+					createNode,
+					createNodeId,
+					httpHeaders: { Authorization },
+					reporter,
+					ext,
+					name,
+				});
+				await cache.set(image.id, { nodeId: img.id });
+			})
+		);
+	}
 };
 
 exports.createSchemaCustomization = async (gatsby, pluginOptions) => {
@@ -98,16 +117,16 @@ exports.createSchemaCustomization = async (gatsby, pluginOptions) => {
 /**
  * Gatsby file implementation.
  */
-exports.createResolvers = async ({ cache, createResolvers }, pluginOptions) => {
+exports.createResolvers = async ({ cache, createResolvers, getNode }, pluginOptions) => {
 	await plugin.setOptions(pluginOptions);
 
 	const fileResolver = {
 		imageFile: {
 			type: `File`,
 			async resolve(source) {
-				// Lookup the cached image node and return it
-				const cachedFile = await cache.get(source.id);
-				return cachedFile;
+				const cached = await cache.get(source.id);
+				if (cached) return getNode(cached.nodeId);
+				throw new Error('Cached image not found for id: ' + source.id);
 			},
 		},
 	};
@@ -129,10 +148,11 @@ class Plugin {
 		this.url = '';
 		this.refreshInterval = 0;
 		this.authPromise = null;
+		this.concurrency = 10;
 	}
 
 	async setOptions(options) {
-		const { url, dev, auth } = options;
+		const { url, dev, auth, concurrency } = options;
 
 		if (isEmpty(url)) error('"url" must be defined');
 
@@ -151,7 +171,7 @@ class Plugin {
 		try {
 			const baseUrl = new URL(url);
 			const basePath = baseUrl.pathname.endsWith('/') ? baseUrl.pathname.slice(0, -1) : baseUrl.pathname;
-			
+
 			baseUrl.pathname = basePath;
 			this.url = baseUrl.toString();
 
@@ -181,6 +201,7 @@ class Plugin {
 			error('"dev.refresh" should be a number in seconds or a string with ms format, i.e. 5s, 5m, 5h, ...');
 
 		this.options = options;
+		this.concurrency = concurrency;
 
 		return this.authPromise;
 	}
@@ -216,12 +237,45 @@ class Plugin {
 	 * Method to retrieve all of the images in directus.files
 	 */
 	async getAllImages() {
+		if (!this.directus) throw new Error('Directus is not instantiated');
+
 		const files = await this.directus.files.readByQuery({ limit: -1 });
-		const imageFiles = files.data.filter(file => file.type.indexOf('image') > -1);
+		const imageFiles = files.data.filter((file) => file.type.indexOf('image') > -1);
 		return imageFiles;
 	}
 
+	async *iterateImages() {
+		if (!this.directus) throw new Error('Directus is not instantiated');
+
+		let hasMore = true;
+		let page = 1;
+
+		while (hasMore) {
+			if (!this.directus) throw new Error('Directus is not instantiated');
+
+			const files = await this.directus.files
+				.readByQuery({
+					filter: { type: { _contains: 'image' } },
+					fields: ['id', 'type', 'filename_download'],
+					sort: ['id'],
+					limit: this.concurrency,
+					page,
+				})
+				.then((r) => r?.data ?? []);
+
+			yield files;
+
+			if (files.length < this.concurrency) {
+				hasMore = false;
+			} else {
+				page++;
+			}
+		}
+	}
+
 	async headers() {
+		if (!this.directus) throw new Error('Directus is not instantiated');
+
 		let headers = {};
 		if (typeof this.options?.headers === 'object') {
 			Object.assign(headers, this.options.headers || {});
