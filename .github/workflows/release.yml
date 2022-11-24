@@ -21,9 +21,6 @@ jobs:
       - name: Prepare
         uses: ./.github/actions/prepare
 
-      - name: Build dist
-        run: pnpm build
-
       - name: Publish Packages
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
