@@ -1,6 +1,6 @@
 {
 	"name": "@directus/gatsby-source-directus",
-	"version": "9.14.7",
+	"version": "9.14.8",
 	"description": "Source plugin for pulling data into Gatsby from a Directus API.",
 	"author": "João Biondo <wolfulus@gmail.com>",
 	"license": "MIT",
@@ -22,8 +22,5 @@
 	"gitHead": "24621f3934dc77eb23441331040ed13c676ceffd",
 	"devDependencies": {
 		"eslint-config-prettier": "^8.5.0"
-	},
-  "peerDependencies": {
-    "gatsby": "^4.0.0"
-  }
+	}
 }
