@@ -283,9 +283,11 @@ class Plugin {
 			Object.assign(headers, (await this.options.headers()) || {});
 		}
 
-		if (this.directus.auth.token) {
+		const token = await this.directus.auth.token;
+
+		if (token) {
 			Object.assign(headers, {
-				Authorization: `Bearer ${this.directus.auth.token}`,
+				Authorization: `Bearer ${token}`,
 			});
 		}
 
