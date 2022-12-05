@@ -69,15 +69,15 @@ exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
 	await sourceNodes(gatsbyOptions, optionsSystem);
 	await sourceNodes(gatsbyOptions, options);
 
-	// Load images here rather than on file resolution.
-	// Create a node for each image and store it in the cache
+	// Load files here rather than on file resolution.
+	// Create a node for each file and store it in the cache
 	// so it can bre retrieved on file resolution.
-	for await (const images of plugin.iterateImages()) {
-		if (!images?.length) break;
+	for await (const files of plugin.iterateFiles()) {
+		if (!files?.length) break;
 
 		await Promise.all(
-			images.map(async (image) => {
-				const cached = await cache.get(image.id);
+			files.map(async (file) => {
+				const cached = await cache.get(file.id);
 				const node = cached && getNode(cached.nodeId);
 
 				if (node) {
@@ -85,13 +85,13 @@ exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
 					return;
 				}
 
-				const nameParts = image.filename_download.split('.');
+				const nameParts = file.filename_download.split('.');
 				const ext = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
 				const name = nameParts.join('.');
-				const imageUrl = `${plugin.url}assets/${image.id}`;
-				const img = await createRemoteFileNode({
-					url: imageUrl,
-					parentNodeId: image.id,
+				const fileUrl = `${plugin.url}assets/${file.id}`;
+				const fileNode = await createRemoteFileNode({
+					url: fileUrl,
+					parentNodeId: file.id,
 					store,
 					cache,
 					createNode,
@@ -101,7 +101,7 @@ exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
 					ext,
 					name,
 				});
-				await cache.set(image.id, { nodeId: img.id });
+				await cache.set(file.id, { nodeId: fileNode.id });
 			})
 		);
 	}
@@ -233,18 +233,7 @@ class Plugin {
 		};
 	}
 
-	/**
-	 * Method to retrieve all of the images in directus.files
-	 */
-	async getAllImages() {
-		if (!this.directus) throw new Error('Directus is not instantiated');
-
-		const files = await this.directus.files.readByQuery({ limit: -1 });
-		const imageFiles = files.data.filter((file) => file.type.indexOf('image') > -1);
-		return imageFiles;
-	}
-
-	async *iterateImages() {
+	async *iterateFiles() {
 		if (!this.directus) throw new Error('Directus is not instantiated');
 
 		let hasMore = true;
@@ -255,7 +244,6 @@ class Plugin {
 
 			const files = await this.directus.files
 				.readByQuery({
-					filter: { type: { _contains: 'image' } },
 					fields: ['id', 'type', 'filename_download'],
 					sort: ['id'],
 					limit: this.concurrency,
