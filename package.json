@@ -15,7 +15,8 @@
 	},
 	"peerDependencies": {
 		"gatsby-source-filesystem": "4 - 5",
-		"gatsby-source-graphql": "4 - 5"
+		"gatsby-source-graphql": "4 - 5",
+		"eslint": "7 - 8"
 	},
 	"repository": "directus/gatsby-source-directus",
 	"bugs": {
