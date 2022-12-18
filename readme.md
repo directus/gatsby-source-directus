@@ -1,10 +1,23 @@
 # gatsby-source-directus
 
-Source plugin for pulling data into Gatsby from a Directus API.
+Source plugin for pulling data into the [Gatsby GraphQL Data Layer](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/) from a Directus API.
 
-## Install
 
+## 5️⃣ Installation for gatsby 4 and 5
+Depending on the `gatsby` version you are using you will need to include the following dependencies to your project on these respective versions: `@4`if you are using `gatsby@4` and `@5` if you are using `gatsby@5`.
+
+### gatsby@4 dependencies
+```bash
+npm install --save gatsby-source-graphql@4 gatsby-source-filesystem@4
 ```
+
+### gatsby@5 dependencies
+```bash
+npm install --save gatsby-source-graphql@5 gatsby-source-filesystem@5
+```
+
+### Install the package
+```bash
 npm install --save @directus/gatsby-source-directus
 ```
 
