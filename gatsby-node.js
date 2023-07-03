@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const { Directus } = require('@directus/sdk');
 const { sourceNodes, createSchemaCustomization } = require('gatsby-source-graphql/gatsby-node');
 const { createRemoteFileNode } = require('gatsby-source-filesystem');
+const nodeFetch = require('node-fetch').default;
 
 /**
  * Validate plugin options
@@ -219,6 +220,21 @@ class Plugin {
 			typeName: this.options?.type?.name || 'DirectusData',
 			fieldName: this.options?.type?.field || 'directus',
 			headers: this.headers.bind(this),
+			fetch: async (uri, options) => {
+				function randInt(min, max) {
+					return Math.floor(Math.random() * (max - min + 1) + min);
+				}
+
+				return nodeFetch(uri, options)
+					.catch(async () => {
+						await new Promise((res) => setTimeout(res, randInt(1000, 3000)));
+						return nodeFetch(uri, options);
+					})
+					.catch(async () => {
+						await new Promise((res) => setTimeout(res, randInt(1000, 3000)));
+						return nodeFetch(uri, options);
+					});
+			},
 		};
 	}
 
