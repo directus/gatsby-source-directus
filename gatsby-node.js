@@ -228,10 +228,6 @@ class Plugin {
 					return nodeFetch(uri, options);
 				}
 
-				function randInt(min, max) {
-					return Math.floor(Math.random() * (max - min + 1) + min);
-				}
-
 				let count = 0;
 				let response = null;
 				let error = null;
@@ -244,7 +240,7 @@ class Plugin {
 					}
 
 					if (count > 0) {
-						await new Promise((res) => setTimeout(res, randInt(1000, 3000)));
+						await sleep(randInt(1000, 8000));
 					}
 				}
 
@@ -348,6 +344,14 @@ function error(message) {
 
 function warning(message) {
 	Log.warning(message);
+}
+
+function randInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function sleep(ms) {
+	return new Promise((res) => setTimeout(res, ms));
 }
 
 const plugin = new Plugin();
