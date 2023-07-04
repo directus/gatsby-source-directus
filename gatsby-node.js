@@ -33,6 +33,7 @@ exports.pluginOptionsSchema = ({ Joi }) => {
 		}),
 		graphql: Joi.object(),
 		concurrency: Joi.number().default(10),
+		retries: Joi.number().default(5),
 	});
 };
 
@@ -150,10 +151,11 @@ class Plugin {
 		this.refreshInterval = 0;
 		this.authPromise = null;
 		this.concurrency = 10;
+		this.retries = 5;
 	}
 
 	async setOptions(options) {
-		const { url, dev, auth, concurrency } = options;
+		const { url, dev, auth, concurrency, retries } = options;
 
 		if (isEmpty(url)) error('"url" must be defined');
 
@@ -203,6 +205,7 @@ class Plugin {
 
 		this.options = options;
 		this.concurrency = concurrency;
+		this.retries = retries;
 
 		return this.authPromise;
 	}
@@ -221,19 +224,33 @@ class Plugin {
 			fieldName: this.options?.type?.field || 'directus',
 			headers: this.headers.bind(this),
 			fetch: async (uri, options) => {
+				function request() {
+					return nodeFetch(uri, options);
+				}
+
 				function randInt(min, max) {
 					return Math.floor(Math.random() * (max - min + 1) + min);
 				}
 
-				return nodeFetch(uri, options)
-					.catch(async () => {
+				let count = 0;
+				let response = null;
+				let error = null;
+
+				while (response === null && count++ < this.retries) {
+					try {
+						response = await request();
+					} catch (err) {
+						err = error;
+					}
+
+					if (count > 0) {
 						await new Promise((res) => setTimeout(res, randInt(1000, 3000)));
-						return nodeFetch(uri, options);
-					})
-					.catch(async () => {
-						await new Promise((res) => setTimeout(res, randInt(1000, 3000)));
-						return nodeFetch(uri, options);
-					});
+					}
+				}
+
+				if (response === null) throw error;
+
+				return response;
 			},
 		};
 	}
