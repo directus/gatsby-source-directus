@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const { Directus } = require('@directus/sdk');
 const { sourceNodes, createSchemaCustomization } = require('gatsby-source-graphql/gatsby-node');
 const { createRemoteFileNode } = require('gatsby-source-filesystem');
+const nodeFetch = require('node-fetch').default;
 
 /**
  * Validate plugin options
@@ -32,6 +33,7 @@ exports.pluginOptionsSchema = ({ Joi }) => {
 		}),
 		graphql: Joi.object(),
 		concurrency: Joi.number().default(10),
+		retries: Joi.number().default(5),
 	});
 };
 
@@ -149,10 +151,11 @@ class Plugin {
 		this.refreshInterval = 0;
 		this.authPromise = null;
 		this.concurrency = 10;
+		this.retries = 5;
 	}
 
 	async setOptions(options) {
-		const { url, dev, auth, concurrency } = options;
+		const { url, dev, auth, concurrency, retries } = options;
 
 		if (isEmpty(url)) error('"url" must be defined');
 
@@ -202,6 +205,7 @@ class Plugin {
 
 		this.options = options;
 		this.concurrency = concurrency;
+		this.retries = retries;
 
 		return this.authPromise;
 	}
@@ -219,6 +223,31 @@ class Plugin {
 			typeName: this.options?.type?.name || 'DirectusData',
 			fieldName: this.options?.type?.field || 'directus',
 			headers: this.headers.bind(this),
+			fetch: async (uri, options) => {
+				function request() {
+					return nodeFetch(uri, options);
+				}
+
+				let count = 0;
+				let response = null;
+				let error = null;
+
+				while (response === null && count++ < this.retries) {
+					try {
+						response = await request();
+					} catch (err) {
+						error = err;
+					}
+
+					if (count > 0) {
+						await sleep(Math.pow(2, count) * 1000);
+					}
+				}
+
+				if (response === null) throw error;
+
+				return response;
+			},
 		};
 	}
 
@@ -315,6 +344,10 @@ function error(message) {
 
 function warning(message) {
 	Log.warning(message);
+}
+
+function sleep(ms) {
+	return new Promise((res) => setTimeout(res, ms));
 }
 
 const plugin = new Plugin();
