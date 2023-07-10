@@ -236,7 +236,7 @@ class Plugin {
 					try {
 						response = await request();
 					} catch (err) {
-						err = error;
+						error = err;
 					}
 
 					if (count > 0) {
