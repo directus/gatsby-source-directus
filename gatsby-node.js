@@ -240,7 +240,7 @@ class Plugin {
 					}
 
 					if (count > 0) {
-						await sleep(randInt(1000, 8000));
+						await sleep(Math.pow(2, count) * 1000);
 					}
 				}
 
@@ -344,10 +344,6 @@ function error(message) {
 
 function warning(message) {
 	Log.warning(message);
-}
-
-function randInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function sleep(ms) {
