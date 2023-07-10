@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const { Directus } = require('@directus/sdk');
 const { sourceNodes, createSchemaCustomization } = require('gatsby-source-graphql/gatsby-node');
 const { createRemoteFileNode } = require('gatsby-source-filesystem');
-const nodeFetch = require('node-fetch').default;
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 /**
  * Validate plugin options
