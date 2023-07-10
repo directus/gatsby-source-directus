@@ -22,8 +22,8 @@
 	"bugs": {
 		"url": "https://github.com/directus/directus/issues"
 	},
-	"gitHead": "24621f3934dc77eb23441331040ed13c676ceffd",
 	"devDependencies": {
 		"eslint-config-prettier": "^8.5.0"
-	}
+	},
+	"packageManager": "pnpm@8.6.7"
 }
