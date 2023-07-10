@@ -1,29 +1,31 @@
 name: Prepare
 description: Install and build the app
 
+inputs:
+  registry:
+    description: NPM registry to set up for auth
+    required: false
+
 runs:
   using: 'composite'
   steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
+        registry-url: ${{ inputs.registry }}
 
-    - uses: pnpm/action-setup@v2.0.1
+    - uses: pnpm/action-setup@v2
       name: Install pnpm
       id: pnpm-install
       with:
-        version: 7
         run_install: false
 
     - name: Get pnpm store directory
       id: pnpm-cache
       shell: bash
       run: |
-        echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+        echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v3
       name: Setup pnpm cache
