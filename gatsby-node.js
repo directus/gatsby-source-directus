@@ -90,7 +90,7 @@ exports.sourceNodes = async (gatsbyOptions, pluginOptions) => {
 				const nameParts = file.filename_download.split('.');
 				const ext = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
 				const name = nameParts.join('.');
-				const fileUrl = `${plugin.url}assets/${file.id}`;
+				const fileUrl = `${plugin.url}${plugin.url.endsWith('/') ? '' : '/'}assets/${file.id}`;
 				const fileNode = await createRemoteFileNode({
 					url: fileUrl,
 					parentNodeId: file.id,
